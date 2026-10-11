@@ -221,13 +221,16 @@ function localAIAnswer(q) {
   if (query.includes("college") || query.includes("education") || query.includes("srm") || query.includes("gpa") || query.includes("cgpa")) {
     return "Kartikay is pursuing his B.Tech in Computer Science & Engineering at SRM University, AP with a CGPA of 8.50.";
   }
+  if (query.includes("research") || query.includes("internship") || query.includes("ocr") || query.includes("document") || query.includes("knowledge graph") || query.includes("rag") || query.includes("suraj") || query.includes("khurana") || query.includes("pdf") || query.includes("yolo") || query.includes("paddle")) {
+    return "Kartikay completed a Research Internship at SRM University AP under Dr. Suraj Singh Khurana. The topic was 'Structured Knowledge Extraction from Heterogeneous Visual Documents using Hybrid Learning'. He built a hybrid AI document processing system using multi-engine PDF parsing (PyMuPDF, PDFMiner.six, PDFPlumber), OCR (PaddleOCR, RapidOCR), OpenCV, PyTorch, and YOLO. It features LaTeX equation reconstruction, table extraction, IoU-based consensus fusion, Knowledge Graph generation, and export to JSON, Markdown, HTML, XML, and LaTeX for RAG pipelines.";
+  }
   if (query.includes("leadership") || query.includes("event") || query.includes("club") || query.includes("hackshastra")) {
-    return "Kartikay serves as Events Lead at Hackshastra and was formerly Events Lead at the Centre of Drone Technology (CDT) at SRM University AP, organizing technical workshops and hackathons.";
+    return "Kartikay serves as Events Lead at Hackshastra and was formerly Events Lead at the Centre of Drone Technology (CDT) at SRM University AP, organizing technical workshops and hackathons. He also completed a Research Internship at SRM AP under Dr. Suraj Singh Khurana on AI-powered document intelligence.";
   }
   if (query.includes("contact") || query.includes("email") || query.includes("hire")) {
     return "You can reach Kartikay at kartikmk0402@gmail.com, or check his GitHub at github.com/apexkartikay and LinkedIn at linkedin.com/in/kartikay-mishra-02644633b.";
   }
-  return "Kartikay Mishra is a Computer Science undergraduate at SRM University AP (CGPA 8.50) skilled in full-stack web development, DBMS, systems programming in C, and problem solving with 180+ LeetCode problems solved. Feel free to ask about his projects, skills, or leadership!";
+  return "Kartikay Mishra is a Computer Science undergraduate at SRM University AP (CGPA 8.50) skilled in full-stack web development, DBMS, systems programming in C, AI research, and problem solving with 180+ LeetCode problems solved. He also completed a Research Internship on AI document intelligence. Feel free to ask about his projects, skills, leadership, or research!";
 }
 
 function askAI(event, preset) {

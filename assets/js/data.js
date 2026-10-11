@@ -1,7 +1,7 @@
 const PORTFOLIO_DATA = {
   experience: [
     {
-      period: "2024 — Present",
+      period: "December 2025 — March 2026",
       company: "Hackshastra · SRM University AP",
       role: "Events Lead",
       desc: [
@@ -11,13 +11,29 @@ const PORTFOLIO_DATA = {
       ]
     },
     {
-      period: "2024 — 2025",
+      period: "December 2025 — March 2026",
       company: "Centre of Drone Technology (CDT) · SRM University AP",
       role: "Former Events Lead",
       desc: [
         "Organized and managed technical workshops and hands-on sessions focused on autonomous drone technology and embedded systems.",
         "Collaborated with multidisciplinary engineering teams to drive student engagement and increase participation across campus-wide initiatives."
       ]
+    },
+    {
+      period: "May 2026 — July 2026",
+      company: "<a href='https://www.srmap.edu.in/' target='_blank' rel='noopener' style='color:inherit;text-decoration:underline;text-underline-offset:3px;'>SRM University AP</a> · Research Internship",
+      role: "Research Intern — AI & Document Intelligence",
+      supervisor: {
+        name: "Dr. Suraj Singh Khurana",
+        url: "https://in.linkedin.com/in/suraj-singh-khurana"
+      },
+      desc: [
+        "<strong>Topic:</strong> Structured Knowledge Extraction from Heterogeneous Visual Documents using Hybrid Learning.",
+        "Developed a hybrid AI-powered document processing system that extracts structured information from complex PDFs and scanned images using multi-engine PDF parsing, OCR, and computer vision.",
+        "Implemented mathematical equation reconstruction in LaTeX, table extraction, layout analysis, IoU-based consensus fusion, and Document/Knowledge Graph generation.",
+        "Engineered export pipelines for JSON, Markdown, HTML, XML, and LaTeX formats — designed for seamless integration with Retrieval-Augmented Generation (RAG) pipelines."
+      ],
+      techs: ["Python", "PyMuPDF", "PDFMiner.six", "PDFPlumber", "PaddleOCR", "RapidOCR", "OpenCV", "PyTorch", "YOLO", "Git", "GitHub"]
     }
   ],
   education: [
@@ -283,29 +299,10 @@ const PORTFOLIO_DATA = {
   ],
   certifications: [
     {
-      icon: "code",
-      date: "2024-10",
-      title: "Data Structures & Algorithms Mastery",
-      sub: "Competitive Programming & Problem Solving · 180+ LeetCode Solved",
-      proof: {
-        image: "assets/images/og-card.jpg",
-        verify: "https://leetcode.com/u/apexkartikay/"
-      }
-    },
-    {
       icon: "database",
       date: "2025-02",
       title: "Relational Database Management (RDBMS)",
       sub: "MySQL, 3NF Normalization, Complex Joins & Stored Procedures",
-      proof: {
-        image: "assets/images/og-card.jpg"
-      }
-    },
-    {
-      icon: "server",
-      date: "2025-06",
-      title: "Full-Stack Web Development Foundation",
-      sub: "MERN Stack, RESTful APIs, Node.js & Authentication",
       proof: {
         image: "assets/images/og-card.jpg"
       }
@@ -339,16 +336,7 @@ const PORTFOLIO_DATA = {
         image: "assets/images/og-card.jpg"
       }
     },
-    {
-      icon: "code",
-      date: "2026-04",
-      title: "LeetCode Milestone: 180+ Solved",
-      sub: "Top tier consistency across Easy, Medium, and Hard algorithmic challenges",
-      proof: {
-        image: "assets/images/og-card.jpg",
-        verify: "https://leetcode.com/u/apexkartikay/"
-      }
-    }
+
   ],
   availability: "Open to Software Engineering Roles & Internships",
   bookingUrl: "",
@@ -357,13 +345,12 @@ const PORTFOLIO_DATA = {
     {
       role: "Events Lead",
       org: "Hackshastra · SRM University AP",
-      period: "2024 — Present",
-      current: true
+      period: "December 2025 — March 2026"
     },
     {
       role: "Former Events Lead",
       org: "Centre of Drone Technology (CDT) · SRM University AP",
-      period: "2024 — 2025"
+      period: "December 2025 — March 2026"
     }
   ],
   currentStatus: {

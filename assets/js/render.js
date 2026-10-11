@@ -52,9 +52,17 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="exp-period">${exp.period}</div>
         <div class="exp-company">${exp.company}</div>
         <div class="exp-role">${exp.role}</div>
+        ${exp.supervisor ? `
+        <div class="exp-supervisor" style="font-family:var(--mono);font-size:11px;color:rgba(136,136,136,.7);margin-bottom:12px;letter-spacing:.3px">
+          Under <a href="${exp.supervisor.url}" target="_blank" rel="noopener" style="color:var(--red);text-decoration:underline;text-underline-offset:3px;">${exp.supervisor.name}</a>
+        </div>` : ''}
         <ul class="exp-desc">
           ${exp.desc.map(d => `<li>${d}</li>`).join('')}
         </ul>
+        ${exp.techs && exp.techs.length ? `
+        <div class="exp-techs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:16px">
+          ${exp.techs.map(t => `<span style="font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.12);color:rgba(200,200,200,.8);background:rgba(255,255,255,.04);letter-spacing:.5px">${t}</span>`).join('')}
+        </div>` : ''}
         ${exp.certificates && exp.certificates.length ? `
         <div class="exp-certs">
           ${exp.certificates.map((c, ci) => `<button type="button" class="proj-link" data-proof="experience:${index}:${ci}">View ${c.label.toLowerCase()} ↗</button>`).join('')}
@@ -142,35 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="exp-company">${edu.institution}</div>
           <div class="exp-role">${edu.degree}</div>
           <ul class="exp-desc">${edu.desc.map(d => `<li>${d}</li>`).join('')}</ul>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // Render Research
-  const researchContainer = document.querySelector('#research .proj-grid');
-  if (researchContainer && typeof PORTFOLIO_DATA !== 'undefined') {
-    researchContainer.innerHTML = PORTFOLIO_DATA.research.map((proj, index) => `
-      <div class="research-feature reveal">
-        <a class="research-poster" href="${proj.link}" target="_blank" rel="noopener">
-          <img src="${proj.image}" alt="${proj.imageLabel}" loading="lazy">
-          <div class="project-image-label">${proj.imageLabel}</div>
-        </a>
-        <div class="research-body">
-          <div class="proj-label">${proj.badge}</div>
-          <div class="proj-name research-title">${proj.title}</div>
-          <div class="proj-desc">${proj.description}</div>
-          ${proj.meta ? `
-          <div class="research-meta">
-            ${proj.meta.map(m => `<div><div class="gh-label">${m.label}</div><div class="case-meta-value">${m.value}</div></div>`).join('')}
-          </div>` : ''}
-          <div class="proj-techs">
-            ${proj.techs.map(t => `<span class="proj-tech">${t}</span>`).join('')}
-          </div>
-          <div class="proj-links">
-            ${proj.proof ? `<button type="button" class="proj-link research-proof" data-proof="research:${index}">View Patent Journal ↗</button>` : ''}
-            <a href="${proj.link}" target="_blank" rel="noopener" class="proj-link">${proj.linkText}</a>
-          </div>
         </div>
       </div>
     `).join('');
