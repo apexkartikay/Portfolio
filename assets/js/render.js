@@ -89,21 +89,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // Journey: a timeline of roles and milestones (achievements, certifications, education start).
-  const timeline = document.querySelector('#journey .timeline');
-  if (timeline && typeof PORTFOLIO_DATA !== 'undefined') {
+  // Journey: a timeline of roles and milestones (achievements, certifications, education, and projects).
+  const renderTimeline = () => {
+    const timeline = document.querySelector('#journey .timeline');
+    if (!timeline || typeof PORTFOLIO_DATA === 'undefined') return;
+
+    if (typeof syncProjectTimelineDates === 'function') {
+      syncProjectTimelineDates(PORTFOLIO_DATA);
+    }
+
     const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const fromPeriod = (period) => {
-      const m = period.match(/([A-Za-z]{3})[a-z]*\s+(\d{4})/);
-      return m ? `${m[2]}-${String(MONTHS.indexOf(m[1]) + 1).padStart(2, '0')}` : `${period.match(/\d{4}/)[0]}-01`;
+      if (!period) return '2025-01';
+      const m = period.match(/([A-Za-z]{3})[a-z]*\s+(\d{4})/i);
+      if (m) {
+        const mIdx = MONTHS.findIndex(mo => mo.toLowerCase() === m[1].toLowerCase());
+        return `${m[2]}-${String(mIdx >= 0 ? mIdx + 1 : 1).padStart(2, '0')}`;
+      }
+      const ym = period.match(/(\d{4})-(\d{2})/);
+      if (ym) return `${ym[1]}-${ym[2]}`;
+      const y = period.match(/\d{4}/);
+      return y ? `${y[0]}-01` : '2025-01';
     };
-    const label = (ym) => `${MONTHS[Number(ym.slice(5, 7)) - 1]} ${ym.slice(0, 4)}`;
+    const label = (ym) => {
+      if (!ym || ym.length < 7) return ym || '';
+      const mIdx = Number(ym.slice(5, 7)) - 1;
+      return `${MONTHS[mIdx] || ''} ${ym.slice(0, 4)}`.trim();
+    };
+
+    const customTimeline = (PORTFOLIO_DATA.timeline || []).map((t, i) => ({
+      kind: 'milestone',
+      group: 'timeline',
+      sort: t.date || fromPeriod(t.period),
+      item: t,
+      i
+    }));
 
     const entries = [
       ...PORTFOLIO_DATA.experience.map((exp, i) => ({ kind: 'role', sort: fromPeriod(exp.period), item: exp, i })),
+      ...customTimeline,
       ...PORTFOLIO_DATA.achievements.filter(a => a.date).map((a, i) => ({ kind: 'milestone', group: 'achievements', sort: a.date, item: a, i: PORTFOLIO_DATA.achievements.indexOf(a) })),
       ...PORTFOLIO_DATA.certifications.filter(c => c.date).map(c => ({ kind: 'milestone', group: 'certifications', sort: c.date, item: c, i: PORTFOLIO_DATA.certifications.indexOf(c) })),
-      ...PORTFOLIO_DATA.education.slice(0, 1).map(e => ({ kind: 'milestone', sort: fromPeriod(e.period), item: { icon: 'code', title: `Started ${e.degree}`, sub: e.institution, dateLabel: e.period.split(/\s*[—-]\s*/)[0] } }))
+      ...PORTFOLIO_DATA.education.slice(0, 1).map(e => ({ kind: 'milestone', sort: fromPeriod(e.period), item: { icon: 'code', title: e.title || e.degree, sub: e.institution, dateLabel: e.period } }))
     ].sort((x, y) => y.sort.localeCompare(x.sort));
 
     timeline.innerHTML = entries.map((e) => {
@@ -122,22 +149,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const m = e.item;
       const body = `
-        <span class="ach-icon">${renderIcon(m.icon)}</span>
+        <span class="ach-icon">${renderIcon(m.icon || 'code')}</span>
         <span class="tl-mile-text">
           <span class="ach-title">${m.title}</span>
-          <span class="ach-sub">${m.sub}</span>
+          <span class="ach-sub">${m.sub || ''}</span>
         </span>
-        ${m.proof ? '<span class="ach-view">View ↗</span>' : ''}`;
+        ${m.link ? `<span class="ach-view">View ↗</span>` : (m.proof ? '<span class="ach-view">View ↗</span>' : '')}`;
       return `
         <div class="tl-item tl-milestone reveal">
-          <div class="tl-date">${m.dateLabel || label(e.sort)}</div>
+          <div class="tl-date">${m.period || m.dateLabel || label(e.sort)}</div>
           <div class="tl-dot small" aria-hidden="true"></div>
           ${m.proof
-            ? `<button type="button" class="tl-mile" data-proof="${e.group}:${e.i}" aria-label="View certificate: ${m.title}">${body}</button>`
-            : `<div class="tl-mile">${body}</div>`}
+            ? `<button type="button" class="tl-mile" data-proof="${e.group}:${e.i}" aria-label="View: ${m.title}">${body}</button>`
+            : (m.link
+                ? `<a href="${m.link}" class="tl-mile" ${m.link.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}>${body}</a>`
+                : `<div class="tl-mile">${body}</div>`)}
         </div>`;
     }).join('');
-  }
+  };
 
   // Render Education as a timeline (same style as the Timeline section)
   const eduContainer = document.querySelector('#education .timeline');
@@ -155,9 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // Render Projects
-  const projectsContainer = document.querySelector('#projects .proj-grid');
-  if (projectsContainer && typeof PORTFOLIO_DATA !== 'undefined') {
+  // Render Projects ("Things I've Built")
+  const renderProjects = () => {
+    const projectsContainer = document.querySelector('#projects .proj-grid');
+    if (!projectsContainer || typeof PORTFOLIO_DATA === 'undefined') return;
+
     projectsContainer.innerHTML = PORTFOLIO_DATA.projects.map((proj, index) => `
       <div class="proj-card reveal card-3d" style="transition-delay:${index * 0.12}s" onmousemove="trackMouse(event,this)">
         <a class="proj-top-bar project-visual ${proj.frame === 'browser' ? 'shot-browser' : ''} ${proj.extraVisualClass || ''}" href="${proj.link}" target="_blank" rel="noopener">
@@ -172,7 +203,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="project-image-label">${proj.imageLabel}</div>
         </a>
         <div class="proj-body">
-          <div class="proj-label">${proj.badge}</div>
+          <div class="proj-header-row">
+            <div class="proj-label">${proj.badge}</div>
+            ${(proj.period || proj.date) ? `<div class="proj-date">${proj.period || proj.date}</div>` : ''}
+          </div>
           <div class="proj-name">${proj.title}</div>
           <div class="proj-desc">${proj.description}</div>
           <div class="proj-techs">
@@ -185,7 +219,19 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `).join('');
-  }
+  };
+
+  // Initial renders
+  renderTimeline();
+  renderProjects();
+
+  // Expose render functions globally and listen to live date change events
+  window.renderTimeline = renderTimeline;
+  window.renderProjects = renderProjects;
+  window.addEventListener('portfolio-date-change', () => {
+    renderProjects();
+    renderTimeline();
+  });
 
   // Render Skills
   const skillsContainer = document.querySelector('#skills .skills-grid');

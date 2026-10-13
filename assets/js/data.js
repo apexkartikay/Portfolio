@@ -66,6 +66,7 @@ const PORTFOLIO_DATA = {
   ],
   projects: [
     {
+      period: "February 2026",
       link: "https://github.com/apexkartikay",
       image: "assets/images/projects/war-medical-hero.jpg",
       frame: "browser",
@@ -119,6 +120,7 @@ const PORTFOLIO_DATA = {
       }
     },
     {
+      period: "January 2026 — Present",
       link: "https://github.com/apexkartikay",
       image: "assets/images/projects/counselling-platform-hero.jpg",
       frame: "browser",
@@ -169,6 +171,7 @@ const PORTFOLIO_DATA = {
       }
     },
     {
+      period: "July 2026",
       link: "https://github.com/apexkartikay/Expense_tracker",
       image: "assets/images/projects/expense-tracker-hero.jpg",
       frame: "browser",
@@ -218,6 +221,7 @@ const PORTFOLIO_DATA = {
       }
     },
     {
+      period: "December 2025",
       link: "https://github.com/apexkartikay/STUDENT-RECORD-MANAGEMENT-SYSTEM",
       image: "assets/images/projects/student-record-hero.jpg",
       frame: "browser",
@@ -357,5 +361,210 @@ const PORTFOLIO_DATA = {
     label: "Currently",
     text: "B.Tech CSE · SRM University AP",
     detail: "CGPA 8.50 · 184 LeetCode Solved · Events Lead"
-  }
+  },
+  // Timeline milestones & projects (dates are automatically kept synchronized with projects)
+  timeline: [
+    {
+      title: "Expense Tracker: Personal Budget & Spending Analytics",
+      period: "July 2026",
+      sub: "Live on GitHub · Python Core",
+      icon: "code",
+      link: "https://github.com/apexkartikay/Expense_tracker"
+    },
+    {
+      title: "Integrated War Resource & Battlefield Medical Management System",
+      period: "February 2026",
+      sub: "High-Performance · DBMS + Full-Stack",
+      icon: "database",
+      link: "project.html?p=war-medical-management"
+    },
+    {
+      title: "Student Counselling Management System",
+      period: "January 2026 — Present",
+      sub: "In Development · MERN Stack",
+      icon: "code",
+      link: "project.html?p=counselling-platform"
+    },
+    {
+      title: "Student Record Management System: Enterprise C Architecture",
+      period: "December 2025",
+      sub: "Live on GitHub · C Systems",
+      icon: "server",
+      link: "https://github.com/apexkartikay/STUDENT-RECORD-MANAGEMENT-SYSTEM"
+    }
+  ]
 };
+
+/**
+ * Bidirectional Date Synchronization Engine:
+ * Ensures any change to the dates/periods in either PORTFOLIO_DATA.projects or
+ * PORTFOLIO_DATA.timeline (or via runtime assignment / setProjectDate) automatically
+ * synchronizes to the other section.
+ */
+function syncProjectTimelineDates(data = PORTFOLIO_DATA) {
+  if (!data || !data.projects) return;
+
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const normalize = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const getBaseTitle = (t) => (t || '').split(/[:\-—]/)[0].trim().toLowerCase();
+
+  const parsePeriodToYm = (period) => {
+    if (!period) return '';
+    const m = period.match(/([A-Za-z]{3})[a-z]*\s+(\d{4})/i);
+    if (m) {
+      const idx = MONTHS.findIndex(mo => mo.toLowerCase() === m[1].toLowerCase());
+      return `${m[2]}-${String(idx >= 0 ? idx + 1 : 1).padStart(2, '0')}`;
+    }
+    const ym = period.match(/(\d{4})-(\d{2})/);
+    if (ym) return `${ym[1]}-${ym[2]}`;
+    const y = period.match(/\d{4}/);
+    return y ? `${y[0]}-01` : '';
+  };
+
+  if (!data.timeline) {
+    data.timeline = [];
+  }
+
+  const CACHE_KEY = '_portfolio_date_sync_cache_v1';
+  let cache = {};
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(CACHE_KEY) : null;
+    if (raw) cache = JSON.parse(raw);
+  } catch (e) {}
+
+  data.projects.forEach((proj, idx) => {
+    const projBase = getBaseTitle(proj.title);
+    const key = proj.caseStudy?.slug || projBase || `proj_${idx}`;
+
+    // Find matching item in timeline by title or slug
+    let match = data.timeline.find((t) => {
+      if (!t || !t.title) return false;
+      const tBase = getBaseTitle(t.title);
+      return tBase === projBase ||
+             normalize(t.title).includes(normalize(projBase)) ||
+             normalize(projBase).includes(normalize(t.title));
+    });
+
+    if (!match) {
+      match = {
+        title: proj.title,
+        sub: proj.badge || 'Project',
+        icon: 'code',
+        link: proj.caseStudy ? `project.html?p=${proj.caseStudy.slug}` : proj.link,
+        period: proj.period || proj.date || '',
+        date: proj.date || ''
+      };
+      data.timeline.push(match);
+    }
+
+    const prevCache = cache[key] || {};
+    const projVal = proj.period || proj.date || '';
+    const timeVal = match.period || match.date || '';
+
+    let chosenPeriod = projVal || timeVal;
+
+    // Detect which section was modified if they differ in the source code
+    if (projVal && timeVal && projVal !== timeVal) {
+      if (prevCache.project && projVal !== prevCache.project) {
+        // Project section in data.js was edited by the user
+        chosenPeriod = projVal;
+      } else if (prevCache.timeline && timeVal !== prevCache.timeline) {
+        // Timeline section in data.js was edited by the user
+        chosenPeriod = timeVal;
+      } else {
+        // Default to project if both changed or on fresh cache
+        chosenPeriod = projVal;
+      }
+    }
+
+    cache[key] = {
+      project: chosenPeriod,
+      timeline: chosenPeriod
+    };
+
+    const sharedState = {
+      period: chosenPeriod,
+      date: proj.date || match.date || (chosenPeriod ? parsePeriodToYm(chosenPeriod) : '')
+    };
+
+    const dispatchChange = (field, val) => {
+      cache[key] = { project: sharedState.period, timeline: sharedState.period };
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        }
+      } catch (e) {}
+      if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+        window.dispatchEvent(new CustomEvent('portfolio-date-change', {
+          detail: { key, title: proj.title, [field]: val }
+        }));
+      }
+    };
+
+    // Bind period two-way
+    const linkProperty = (target, prop) => {
+      Object.defineProperty(target, prop, {
+        configurable: true,
+        enumerable: true,
+        get() {
+          return prop === 'period' ? sharedState.period : sharedState.date;
+        },
+        set(val) {
+          if (prop === 'period') {
+            sharedState.period = val;
+            if (val) sharedState.date = parsePeriodToYm(val);
+          } else {
+            sharedState.date = val;
+            if (val && !sharedState.period) sharedState.period = val;
+          }
+          dispatchChange(prop, val);
+        }
+      });
+    };
+
+    linkProperty(proj, 'period');
+    linkProperty(match, 'period');
+    linkProperty(proj, 'date');
+    linkProperty(match, 'date');
+  });
+
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+    }
+  } catch (e) {}
+}
+
+// Helper to update any project date programmatically by title or slug
+function setProjectDate(titleOrSlug, newDate) {
+  if (typeof PORTFOLIO_DATA === 'undefined') return false;
+  const normalize = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const target = (titleOrSlug || '').trim();
+  const proj = PORTFOLIO_DATA.projects.find(p =>
+    (p.caseStudy && p.caseStudy.slug === target) ||
+    normalize(p.title).includes(normalize(target)) ||
+    normalize(target).includes(normalize(p.title))
+  );
+  if (proj) {
+    proj.period = newDate;
+    return true;
+  }
+  return false;
+}
+
+// Run initial sync on load
+syncProjectTimelineDates(PORTFOLIO_DATA);
+
+// Expose globally
+if (typeof window !== 'undefined') {
+  window.PORTFOLIO_DATA = PORTFOLIO_DATA;
+  window.syncProjectTimelineDates = syncProjectTimelineDates;
+  window.setProjectDate = setProjectDate;
+}
+if (typeof globalThis !== 'undefined') {
+  globalThis.PORTFOLIO_DATA = PORTFOLIO_DATA;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { PORTFOLIO_DATA, syncProjectTimelineDates, setProjectDate };
+}
+

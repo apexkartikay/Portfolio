@@ -38,11 +38,20 @@
         <h1 class="s-title case-title reveal">${name.trim()}${rest.length ? `<span>${rest.join(":").trim()}</span>` : ""}</h1>
         <p class="case-tagline reveal">${cs.tagline}</p>
         <div class="case-meta reveal-s">
-          ${cs.meta.map((m) => `
-            <div class="case-meta-item">
-              <div class="gh-label">${m.label}</div>
-              <div class="case-meta-value">${m.value}</div>
-            </div>`).join("")}
+          ${(() => {
+            const items = [...cs.meta];
+            const dateVal = project.period || project.date;
+            const existingIdx = items.findIndex(m => m.label.toLowerCase() === 'timeline' || m.label.toLowerCase() === 'date');
+            if (dateVal) {
+              if (existingIdx >= 0) items[existingIdx].value = dateVal;
+              else items.push({ label: "Timeline", value: dateVal });
+            }
+            return items.map((m) => `
+              <div class="case-meta-item">
+                <div class="gh-label">${m.label}</div>
+                <div class="case-meta-value">${m.value}</div>
+              </div>`).join("");
+          })()}
         </div>
         <div class="case-links reveal">
           ${cs.links.map((l) => `<a href="${l.url}" target="_blank" rel="noopener" class="proj-link">${l.label}</a>`).join("")}
